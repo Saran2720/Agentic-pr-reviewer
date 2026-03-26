@@ -5,8 +5,12 @@ export const rateLimiter = rateLimit({
   windowMs: 60 * 1000, // 1minute
   max: 20, //20 requests per minute
   keyGenerator: (req) => {
-    return req.body?.repository?.full_name || req.ip; //rate limit by repo or IP
+    return req.body?.repository?.full_name || 'Global'; //Use repo name if available, otherwise skip IP entirely
   },
+  skip:(req)=>{
+    return false;
+  },
+  validate:{xForwardedForHeader:false},
   handler: (req, res) => {
     logger.warn("Rate limit exceeded", {
       repo: req.body?.repository?.full_name,

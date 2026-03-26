@@ -7,6 +7,7 @@ dotenv.config();
 
 const pool= new pg.Pool({
     connectionString: process.env.DATABASE_URL,
+    ssl:{rejectUnauthorized:false}
 })
 
 pool.on('connect',()=>{
@@ -14,7 +15,7 @@ pool.on('connect',()=>{
 })
 
 pool.on('error',(err)=>{
-    logger.error('Database error', { error: err });
+    logger.error('Postgres error', { error: err.message });
 })
 
 export default pool;
