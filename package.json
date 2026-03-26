@@ -13,6 +13,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.80.0",
     "@octokit/rest": "^22.0.1",
     "bull": "^4.16.5",
     "crypto": "^1.0.1",

@@ -1,4 +1,5 @@
 import { fetchPRData } from "../pipeline/fetchPR.js";
+import { summarizeFiles } from "../pipeline/summarize.js";
 import logger from "../utils/logger.js";
 import reviewQueue from "./reviewQueue.js";
 
@@ -13,9 +14,9 @@ reviewQueue.process(async (job)=>{
         const prData = await fetchPRData({ repo, prNumber });
         logger.info("PR data fetched successfully", { repo, prNumber, prTitle });
 
-
-
-        
+        // STEP2: summarize the changed files using LLM
+        await summarizeFiles({repo,files:prData.files});
+        logger.info("Files summarized successfully", { repo, prNumber, prTitle });
 
 
 
