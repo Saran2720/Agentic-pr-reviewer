@@ -1,7 +1,7 @@
-import logger from "../utils/logger";
+import logger from "../utils/logger.js";
 import Anthropic from "@anthropic-ai/sdk";
 import dotenv from "dotenv";
-import { upsertFileSummary } from "../db/queries";
+import { upsertFileSummary } from "../db/queries.js";
 
 dotenv.config();
 

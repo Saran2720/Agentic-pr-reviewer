@@ -6,7 +6,8 @@ import { verifySignature } from "./middleware/verifySignature.js";
 import { createTables } from "./db/queries.js";
 import redis from "./utils/cache.js";
 import { addReviewJob } from './queue/reviewQueue.js'
-import './queue/worker.js';
+import './queue/worker.js'
+
 dotenv.config();
 
 const app = express();
