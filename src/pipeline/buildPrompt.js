@@ -17,14 +17,14 @@ export function buildreviewPrompt({
     {
      "comments":[
      {
-          "line": <line number as integer>,
+      "line": <line number as integer>,
       "issue": "<what is wrong>",
       "suggestion": "<how to fix it>",
       "severity": "critical" | "warning" | "suggestion"
      }
     ],
      "verdict": "approve" | "request_changes",
-  "summary": "<2-3 sentence overall summary of this file's changes>"
+    "summary": "<2-3 sentence overall summary of this file's changes>"
     }
     Rules:
 - Only comment on real issues, not style preferences

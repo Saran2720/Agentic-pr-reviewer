@@ -1,3 +1,4 @@
+import { postInlineComment } from "../github/action.js";
 import { revewFiles } from "../pipeline/aireview.js";
 import { fetchPRData } from "../pipeline/fetchPR.js";
 import { summarizeFiles } from "../pipeline/summarize.js";
@@ -27,6 +28,7 @@ reviewQueue.process(async (job) => {
     });
 
     //STEP4 -> Posting result to GITHUB
+    await postInlineComment({repo,prNumber, reviewResults});
 
 
     logger.info("Review job finished", { repo, prNumber, prTitle });
