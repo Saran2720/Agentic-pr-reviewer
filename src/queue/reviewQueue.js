@@ -3,9 +3,19 @@ import dotenv from "dotenv";
 import logger from "../utils/logger.js";
 
 dotenv.config();
+const redisUrl = new URL(process.env.REDIS_URL)
+
 
 const reviewQueue = new Bull("reviewQueue", {
-  redis: process.env.REDIS_URL,
+  redis: {
+    host:redisUrl.hostname,
+    port:Number(redisUrl.port),
+    password:redisUrl.password,
+    tls:{}
+  },
+  settings: {
+    maxStalledCount: 1,
+  },
   defaultJobOptions: {
     attempts: 3, // retry 3 times if job fails
     backoff: {
@@ -43,15 +53,14 @@ reviewQueue.on("stalled", (job) => {
   });
 });
 
-
 export async function addReviewJob({ repo, prNumber, prTitle }) {
-    const job = await reviewQueue.add({ repo, prNumber, prTitle });
-    logger.info("Added review job to queue", {
-      jobId: job.id,
-      repo,
-      prNumber,
-    });
-    return job;
+  const job = await reviewQueue.add({ repo, prNumber, prTitle });
+  logger.info("Added review job to queue", {
+    jobId: job.id,
+    repo,
+    prNumber,
+  });
+  return job;
 }
 
 export default reviewQueue;

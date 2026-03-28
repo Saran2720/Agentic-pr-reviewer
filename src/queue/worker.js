@@ -1,4 +1,5 @@
-import { postInlineComment } from "../github/action.js";
+import { saveReview } from "../db/queries.js";
+import { applyLabels, postInlineComment, postSummaryComment, submitReview } from "../github/action.js";
 import { revewFiles } from "../pipeline/aireview.js";
 import { fetchPRData } from "../pipeline/fetchPR.js";
 import { summarizeFiles } from "../pipeline/summarize.js";
@@ -29,10 +30,31 @@ reviewQueue.process(async (job) => {
 
     //STEP4 -> Posting result to GITHUB
     await postInlineComment({repo,prNumber, reviewResults});
+    await postSummaryComment({repo, prNumber,reviewResults});
+    await submitReview({repo, prNumber,reviewResults});
+    await applyLabels({repo,prNumber,reviewResults});
 
 
+    // STEP 5 — Save review to DB
+    const overallVerdict = reviewResults.some((r) => r.verdict === 'request_changes')
+      ? 'request_changes'
+      : 'approve'
+
+    await saveReview({
+      repo,
+      prNumber,
+      verdict: overallVerdict,
+      summary: reviewResults.map((r) => r.summary).join(' | '),
+      filesReviewed: reviewResults.length
+    })
+    logger.info('Review saved to database', { repo, prNumber })
+
+
+    //final logger
     logger.info("Review job finished", { repo, prNumber, prTitle });
-  } catch (err) {
+  } 
+  
+  catch (err) {
     logger.error("Failed to process review job", {
       repo,
       prNumber,

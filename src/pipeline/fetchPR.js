@@ -1,5 +1,7 @@
 import { Octokit } from "@octokit/rest";
 import dotenv from "dotenv";
+import logger from "../utils/logger.js";
+import { getCache, setCache } from "../utils/cache.js";
 
 dotenv.config();
 

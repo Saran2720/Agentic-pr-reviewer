@@ -1,38 +1,39 @@
+import logger from "../utils/logger.js";
 import { buildreviewPrompt } from "./buildPrompt.js";
 import { getRAGContext } from "./ragLookUp.js";
-import Anthropic from "@anthropic-ai/sdk";
 import dotenv from "dotenv";
-
+import { GoogleGenerativeAI } from "@google/generative-ai";
 dotenv.config();
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const client = new GoogleGenerativeAI(process.env.GEMINI_API_KEY); //initialize your LLM client here (e.g., OpenAI, Cohere, etc.)
+const AiModel = client.getGenerativeModel({ model: "gemini-1.5-flash-8b" });
 
 const callAIWithRetry = async (prompt, retries = 3) => {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
-      const response = await client.messages.create({
-        model: "claude-3-5-haiku-20241022",
-        max_tokens: 1000,
-        messages: [
-          {
-            role: "user",
-            content: prompt,
-          },
-        ],
+      //sending details to LLM with cofig like tokens and temperature
+      const result = AiModel.generateContent({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: {
+          maxOutputTokens: 1000,
+          temperature: 0.7,
+        },
       });
-
-      const text = response.content[0].text;
+      const text = result.response.text();
 
       //parese JSON res
       const clean = text.replace(/```json|```/g, "").trim();
       return JSON.parse(clean);
-    } catch (error) {
+    } catch (err) {
       logger.warn(`AI attempt ${attempt} failed`, { error: err.message });
 
       if (attempt === retries) throw err;
 
-      // Exponential backoff: 2s, 4s, 8s
-      const delay = Math.pow(2, attempt) * 1000;
+       // Wait longer if rate limited (429)
+      const delay = err.status == 429 
+      ? 10000   // wait 10 seconds if rate limited
+      : Math.min(2, attempt) * 1000; // normal exponential backoff
+      logger.info(`Retrying in ${delay / 1000}s...`);
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }

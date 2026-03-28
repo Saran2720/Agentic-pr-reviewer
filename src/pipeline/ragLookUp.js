@@ -2,7 +2,7 @@ import { getFileSummaries } from "../db/queries.js";
 import logger from "../utils/logger.js";
 
 function extractReatedFiles(filename, allFiles) {
-    const folder = filename.split("/").silce(0,-1).join("/");
+    const folder = filename.split("/").slice(0,-1).join("/");
 const related = allFiles
                 .filter((f)=> f.filename!==filename)
                 .filter((f)=>{
