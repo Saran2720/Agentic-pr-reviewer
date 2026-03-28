@@ -7,7 +7,7 @@ import { cli } from "winston/lib/winston/config/index.js";
 dotenv.config();
 
 const client = new GoogleGenerativeAI(process.env.GEMINI_API_KEY); //initialize your LLM client here (e.g., OpenAI, Cohere, etc.)
-const AiModel = client.getGenerativeModel({ model: "gemini-1.5-flash-8b" });
+const AiModel = client.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
 
 export const summarizeFiles = async ({ repo, files }) => {
   logger.info("summarizing files for RAG", { repo, filesCount: files.length });
@@ -51,7 +51,7 @@ Reply with just the summary without any additional text.`,
       await upsertFileSummary({ repo, filename: file.filename, summary });
       logger.info("File summarized ", { filename: file.filename });
     } catch (error) {
-      logger.error("Failed to summarize file", {
+      logger.warn("Failed to summarize file", {
         filename: file.filename,
         error: error.message,
       });
